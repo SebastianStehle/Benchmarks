@@ -17,13 +17,13 @@ namespace Benchmarks.Serialization
     {
         private readonly ContentFieldData data = new ContentFieldData
         {
-            ["iv"] = "1",
-            ["iv"] = "2",
-            ["iv"] = "3",
-            ["iv"] = "4",
-            ["iv"] = "5",
-            ["iv"] = "6",
-            ["iv"] = "7",
+            ["1"] = "1",
+            ["2"] = "2",
+            ["3"] = "3",
+            ["4"] = "4",
+            ["5"] = "5",
+            ["6"] = "6",
+            ["7"] = "7",
         };
 
         private readonly JsonSerializer surrogateSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
