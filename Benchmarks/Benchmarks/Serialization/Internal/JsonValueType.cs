@@ -5,16 +5,15 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using BenchmarkDotNet.Running;
-using Benchmarks.Serialization;
-
-namespace Benchmarks
+namespace Benchmarks.Serialization.Internal
 {
-    public static class Program
+    public enum JsonValueType
     {
-        public static void Main(string[] args)
-        {
-            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
-        }
+        Array,
+        Boolean,
+        Null,
+        Number,
+        Object,
+        String
     }
 }
