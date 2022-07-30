@@ -16,7 +16,7 @@ namespace Benchmarks.Collections
     public class DictionariesAdd
     {
         [Benchmark]
-        public Dictionary<int, int> Add()
+        public object? Add()
         {
             var result = new Dictionary<int, int>();
 
@@ -29,7 +29,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public Dictionary<int, int> Set()
+        public object? Set()
         {
             var result = new Dictionary<int, int>();
 

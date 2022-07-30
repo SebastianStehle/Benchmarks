@@ -45,7 +45,7 @@ namespace Benchmarks.Serialization
         private readonly JsonSerializer defaultSerializer = JsonSerializer.CreateDefault();
 
         [Benchmark]
-        public Stream Serialize_Surrogate()
+        public object? Serialize_Surrogate()
         {
             var stream = new MemoryStream();
 
@@ -58,7 +58,7 @@ namespace Benchmarks.Serialization
         }
 
         [Benchmark]
-        public Stream Serialize_Custom()
+        public object? Serialize_Custom()
         {
             var stream = new MemoryStream();
 
@@ -71,7 +71,7 @@ namespace Benchmarks.Serialization
         }
 
         [Benchmark]
-        public Stream Serialize_Default()
+        public object? Serialize_Default()
         {
             var stream = new MemoryStream();
 

@@ -6,7 +6,7 @@
 // ==========================================================================
 
 using BenchmarkDotNet.Running;
-using Benchmarks.Serialization;
+using Benchmarks.MongoDb;
 
 namespace Benchmarks
 {
@@ -14,6 +14,14 @@ namespace Benchmarks
     {
         public static void Main(string[] args)
         {
+            var x = new MongoDb_Deserialize();
+            x.Json_System();
+            x.Json_Newtonsoft();
+            x.Bson();
+            x.Bson_over_JsonDocument();
+            x.Bson_over_JsonBinary();
+            x.Bson_over_JsonString();
+
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
         }
     }

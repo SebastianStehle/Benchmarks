@@ -15,19 +15,19 @@ namespace Benchmarks.Numbers
     public class ParseNumbers
     {
         [Benchmark]
-        public double Parse_Double()
+        public object? Parse_Double()
         {
             return double.Parse("1000", NumberStyles.Any, CultureInfo.InvariantCulture);
         }
 
         [Benchmark]
-        public double Parse_Double_Convert()
+        public object? Parse_Double_Convert()
         {
             return int.Parse("1000", NumberStyles.Any, CultureInfo.InvariantCulture);
         }
 
         [Benchmark]
-        public int Parse_Int()
+        public object? Parse_Int()
         {
             return int.Parse("1000", NumberStyles.Any, CultureInfo.InvariantCulture);
         }

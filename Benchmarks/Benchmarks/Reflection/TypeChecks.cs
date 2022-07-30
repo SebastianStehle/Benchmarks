@@ -1,4 +1,11 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿// ==========================================================================
+//  Squidex Headless CMS
+// ==========================================================================
+//  Copyright (c) Squidex UG (haftungsbeschraenkt)
+//  All rights reserved. Licensed under the MIT license.
+// ==========================================================================
+
+using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.Reflection
 {
@@ -8,7 +15,6 @@ namespace Benchmarks.Reflection
     {
         private List<object?> values;
         private List<JsonValueType> result;
-
 
         [IterationSetup]
         public void Setup()

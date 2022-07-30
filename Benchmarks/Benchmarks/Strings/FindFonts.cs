@@ -28,7 +28,7 @@ namespace Benchmarks.Strings
         public string Input { get; set; }
 
         [Benchmark]
-        public HashSet<string> Trim()
+        public object? Trim()
         {
             var result = new HashSet<string>();
 
@@ -46,7 +46,7 @@ namespace Benchmarks.Strings
         }
 
         [Benchmark]
-        public HashSet<string> Contains()
+        public object? Contains()
         {
             var result = new HashSet<string>();
 

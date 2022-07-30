@@ -18,7 +18,7 @@ namespace Benchmarks.Strings
         private static readonly ReadOnlyMemory<char> TestMemory = Test.AsMemory();
 
         [Benchmark]
-        public string Append_String()
+        public object? Append_String()
         {
             var sb = new StringBuilder();
 
@@ -31,7 +31,7 @@ namespace Benchmarks.Strings
         }
 
         [Benchmark]
-        public string Append_Memory()
+        public object? Append_Memory()
         {
             var sb = new StringBuilder();
 
@@ -44,7 +44,7 @@ namespace Benchmarks.Strings
         }
 
         [Benchmark]
-        public string Append_Span()
+        public object? Append_Span()
         {
             var span = Test.AsSpan();
 

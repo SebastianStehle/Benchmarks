@@ -30,9 +30,9 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public List<int> For()
+        public object? For()
         {
-            for (var i = 0; i < source.Count;i++)
+            for (var i = 0; i < source.Count; i++)
             {
                 result.Add(source[i]);
             }
@@ -41,7 +41,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public List<int> Foreach()
+        public object? Foreach()
         {
             foreach (var item in source)
             {

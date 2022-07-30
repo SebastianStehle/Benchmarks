@@ -76,7 +76,7 @@ namespace Benchmarks.Collections.Internal
 
                 for (var i = 0; i < entries.Count; i++)
                 {
-                    if (comparer.Equals(entries[i].Key, key))
+                    if (Equals(entries[i].Key, key))
                     {
                         index = i;
                         break;
@@ -172,7 +172,7 @@ namespace Benchmarks.Collections.Internal
         {
             foreach (var entry in entries)
             {
-                if (comparer.Equals(entry.Key, item.Key) && Equals(entry.Value, item.Value))
+                if (Equals(entry.Key, item.Key) && Equals(entry.Value, item.Value))
                 {
                     return true;
                 }
@@ -185,7 +185,7 @@ namespace Benchmarks.Collections.Internal
         {
             foreach (var entry in entries)
             {
-                if (comparer.Equals(entry.Key, key))
+                if (Equals(entry.Key, key))
                 {
                     return true;
                 }
@@ -198,7 +198,7 @@ namespace Benchmarks.Collections.Internal
         {
             foreach (var entry in entries)
             {
-                if (comparer.Equals(entry.Key, key))
+                if (Equals(entry.Key, key))
                 {
                     value = entry.Value;
                     return true;
@@ -215,7 +215,7 @@ namespace Benchmarks.Collections.Internal
             {
                 var entry = entries[i];
 
-                if (comparer.Equals(entry.Key, key))
+                if (Equals(entry.Key, key))
                 {
                     entries.RemoveAt(i);
                     return true;
@@ -231,7 +231,7 @@ namespace Benchmarks.Collections.Internal
             {
                 var entry = entries[i];
 
-                if (comparer.Equals(entry.Key, item.Key) && Equals(entry.Value, item.Value))
+                if (Equals(entry.Key, item.Key) && Equals(entry.Value, item.Value))
                 {
                     entries.RemoveAt(i);
                     return true;
@@ -259,6 +259,16 @@ namespace Benchmarks.Collections.Internal
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new Enumerator(this);
+        }
+
+        private bool Equals(TKey lhs, TKey rhs)
+        {
+            if (comparer.GetHashCode(lhs) != comparer.GetHashCode(rhs))
+            {
+                return false;
+            }
+
+            return comparer.Equals(lhs, rhs);
         }
     }
 }

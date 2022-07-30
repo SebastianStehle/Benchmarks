@@ -33,7 +33,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public Dictionary<string, string> Dictionary()
+        public object? Dictionary()
         {
             var result = new Dictionary<string, string>();
 
@@ -46,7 +46,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public Dictionary<string, string> DictionaryPreSize()
+        public object? DictionaryPreSize()
         {
             var result = new Dictionary<string, string>(N);
 
@@ -59,7 +59,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public List<KeyValuePair<string, string>> List()
+        public object? List()
         {
             var result = new List<KeyValuePair<string, string>>();
 
@@ -72,7 +72,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public List<KeyValuePair<string, string>> PreSize()
+        public object? PreSize()
         {
             var result = new List<KeyValuePair<string, string>>(N);
 
@@ -85,7 +85,7 @@ namespace Benchmarks.Collections
         }
 
         [Benchmark]
-        public ListDictionary<string, string> ListDictionary()
+        public object? ListDictionary()
         {
             var result = new ListDictionary<string, string>();
 

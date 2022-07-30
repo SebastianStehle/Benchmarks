@@ -21,31 +21,31 @@ namespace Benchmarks.Serialization
         private readonly JsonValueConverter converter = new JsonValueConverter();
 
         [Benchmark]
-        public Dictionary<string, Dictionary<string, JsonValue>> Newtonsoft_Dynamic2()
+        public object? Newtonsoft_Dynamic2()
         {
             return JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, JsonValue>>>(json, converter)!;
         }
 
         [Benchmark]
-        public AuditReportClassification SystemTextJson()
+        public object? SystemTextJson()
         {
             return System.Text.Json.JsonSerializer.Deserialize<AuditReportClassification>(json)!;
         }
 
         [Benchmark]
-        public JsonDocument SystemTextJson_Dynamic()
+        public object? SystemTextJson_Dynamic()
         {
             return JsonDocument.Parse(json);
         }
 
         [Benchmark]
-        public AuditReportClassification Newtonsoft()
+        public object? Newtonsoft()
         {
             return JsonConvert.DeserializeObject<AuditReportClassification>(json)!;
         }
 
         [Benchmark]
-        public JObject Newtonsoft_Dynamic()
+        public object? Newtonsoft_Dynamic()
         {
             return JObject.Parse(json)!;
         }

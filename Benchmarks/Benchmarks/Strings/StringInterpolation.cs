@@ -19,7 +19,7 @@ namespace Benchmarks.Strings
         private static readonly ReadOnlyMemory<char> TestMemory = Test.AsMemory();
 
         [Benchmark]
-        public string Interpolate()
+        public object? Interpolate()
         {
             var sb = new StringBuilder();
 
@@ -32,7 +32,7 @@ namespace Benchmarks.Strings
         }
 
         [Benchmark]
-        public string Interpolate_String()
+        public object? Interpolate_String()
         {
             var sb = new StringBuilder();
 
@@ -47,7 +47,7 @@ namespace Benchmarks.Strings
         }
 
         [Benchmark]
-        public string Append()
+        public object? Append()
         {
             var sb = new StringBuilder();
 
