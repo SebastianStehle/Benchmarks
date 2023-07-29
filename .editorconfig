@@ -13,6 +13,8 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 
+csharp_style_namespace_declarations = file_scoped
+
 # FAILING ANALYZERS
 dotnet_diagnostic.RECS0002.severity = none
 dotnet_diagnostic.RECS0117.severity = none
@@ -22,8 +24,8 @@ dotnet_diagnostic.SA1649.severity = none
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
 
-# CA1822: Mark members as static
-dotnet_diagnostic.CA1822.severity = none
+# CA2016: Forward the 'CancellationToken' parameter to methods
+dotnet_diagnostic.CA2016.severity = none
 
 # CS8618: Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 dotnet_diagnostic.CS8618.severity = none
@@ -166,5 +168,11 @@ dotnet_diagnostic.SA1601.severity = none
 # SA1602: Enumeration items should be documented
 dotnet_diagnostic.SA1602.severity = none
 
+# SA1615: Element return value should be documented
+dotnet_diagnostic.SA1615.severity = none
+
 # SA1623: Property summary documentation should match accessors
 dotnet_diagnostic.SA1623.severity = none
+
+# xUnit1033: Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture
+dotnet_diagnostic.xUnit1033.severity = none
