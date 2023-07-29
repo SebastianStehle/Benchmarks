@@ -102,7 +102,7 @@ public class Mapper
             UInt16 = source.UInt16,
             UInt32 = source.UInt32,
             UInt64 = source.UInt64,
-            Uri = source.Uri,
+            Uri = source.Uri
         };
     }
 

@@ -13,16 +13,16 @@ namespace Benchmarks.Mapping.Internal;
 
 public static partial class SimpleMapper
 {
-    internal interface IPropertyMapper<TSource, TTarget>
-    {
-        void MapProperty(TSource source, TTarget target, ref MappingContext context);
-    }
-
     internal readonly record struct MappingContext
     {
         required public CultureInfo Culture { get; init; }
 
         required public bool NullableAsOptional { get; init; }
+    }
+
+    internal interface IPropertyMapper<TSource, TTarget>
+    {
+        void MapProperty(TSource source, TTarget target, ref MappingContext context);
     }
 
     private static class SimplePropertyMapper

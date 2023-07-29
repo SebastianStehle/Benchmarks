@@ -20,12 +20,12 @@ public static class Program
         var x = new Mapper();
         x.Map_Manually();
         x.Map_SimpleMapper();
-        ManManually(x);
+        MapManually(x);
         MapSimpleMapper(x);
-        // BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+        BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 
-    private static void ManManually(Mapper x)
+    private static void MapManually(Mapper x)
     {
         var watch = Stopwatch.StartNew();
 
