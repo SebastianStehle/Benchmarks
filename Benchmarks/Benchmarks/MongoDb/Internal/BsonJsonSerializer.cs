@@ -255,7 +255,6 @@ public sealed class BsonJsonSerializer<T> : ClassSerializerBase<T?>, IRepresenta
                 break;
             default:
                 throw new NotSupportedException();
-                break;
         }
     }
 

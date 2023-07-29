@@ -80,7 +80,7 @@ public class Sorting
         return result;
     }
 
-    public static List<T> Dictionary<T, TKey>(List<T> input, Func<T, TKey> idProvider, IReadOnlyList<TKey> ids) where T : class
+    public static List<T> Dictionary<T, TKey>(List<T> input, Func<T, TKey> idProvider, IReadOnlyList<TKey> ids) where T : class where TKey : notnull
     {
         var result = new List<T>(ids.Count);
 
