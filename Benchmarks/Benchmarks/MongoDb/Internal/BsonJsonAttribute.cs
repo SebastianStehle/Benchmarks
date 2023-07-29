@@ -5,10 +5,9 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-namespace Benchmarks.MongoDb.Internal
+namespace Benchmarks.MongoDb.Internal;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class BsonJsonAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class BsonJsonAttribute : Attribute
-    {
-    }
 }

@@ -7,72 +7,71 @@
 
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.Collections
+namespace Benchmarks.Collections;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class DictionaryRemoveLoop
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class DictionaryRemoveLoop
+    private Dictionary<string, string> source;
+    private string index1;
+    private string index2;
+
+    [Params(5, 10, 20, 100)]
+    public int N { get; set; }
+
+    [IterationSetup]
+    public void Setup()
     {
-        private Dictionary<string, string> source;
-        private string index1;
-        private string index2;
+        source = new Dictionary<string, string>();
 
-        [Params(5, 10, 20, 100)]
-        public int N { get; set; }
-
-        [IterationSetup]
-        public void Setup()
+        for (var i = 0; i < N; i++)
         {
-            source = new Dictionary<string, string>();
-
-            for (var i = 0; i < N; i++)
-            {
-                source.Add($"{i}", $"{i}");
-            }
-
-            index1 = $"{(int)(N * 0.5)}";
-            index2 = $"{(int)(N * 0.8)}";
+            source.Add($"{i}", $"{i}");
         }
 
-        [Benchmark]
-        public void Remove_Linq_Keys()
+        index1 = $"{(int)(N * 0.5)}";
+        index2 = $"{(int)(N * 0.8)}";
+    }
+
+    [Benchmark]
+    public void Remove_Linq_Keys()
+    {
+        foreach (var key in source.Keys.Where(x => x == index1 || x == index2).ToList())
         {
-            foreach (var key in source.Keys.Where(x => x == index1 || x == index2).ToList())
-            {
-                source.Remove(key);
-            }
+            source.Remove(key);
         }
+    }
 
-        [Benchmark]
-        public void Remove_Linq_Normal()
+    [Benchmark]
+    public void Remove_Linq_Normal()
+    {
+        foreach (var kvp in source.Where(x => x.Key == index1 || x.Key == index2).ToList())
         {
-            foreach (var kvp in source.Where(x => x.Key == index1 || x.Key == index2).ToList())
-            {
-                source.Remove(kvp.Value);
-            }
+            source.Remove(kvp.Value);
         }
+    }
 
-        [Benchmark]
-        public void Remove_Plain()
+    [Benchmark]
+    public void Remove_Plain()
+    {
+        while (true)
         {
-            while (true)
-            {
-                var isRemoved = false;
+            var isRemoved = false;
 
-                foreach (var kvp in source)
+            foreach (var kvp in source)
+            {
+                if (kvp.Key == index1 || kvp.Key == index2)
                 {
-                    if (kvp.Key == index1 || kvp.Key == index2)
-                    {
-                        source.Remove(kvp.Key);
-                        isRemoved = true;
-                        break;
-                    }
-                }
-
-                if (!isRemoved)
-                {
+                    source.Remove(kvp.Key);
+                    isRemoved = true;
                     break;
                 }
+            }
+
+            if (!isRemoved)
+            {
+                break;
             }
         }
     }

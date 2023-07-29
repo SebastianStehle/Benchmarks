@@ -7,55 +7,54 @@
 
 using Newtonsoft.Json;
 
-namespace Benchmarks.Serialization.Internal
+namespace Benchmarks.Serialization.Internal;
+
+public sealed class ContentFieldDataConverter : JsonClassConverter<ContentFieldData>
 {
-    public sealed class ContentFieldDataConverter : JsonClassConverter<ContentFieldData>
+    protected override void WriteValue(JsonWriter writer, ContentFieldData value, JsonSerializer serializer)
     {
-        protected override void WriteValue(JsonWriter writer, ContentFieldData value, JsonSerializer serializer)
+        writer.WriteStartObject();
+
+        foreach (var (key, jsonValue) in value)
         {
-            writer.WriteStartObject();
+            writer.WritePropertyName(key);
 
-            foreach (var (key, jsonValue) in value)
-            {
-                writer.WritePropertyName(key);
-
-                serializer.Serialize(writer, jsonValue);
-            }
-
-            writer.WriteEndObject();
+            serializer.Serialize(writer, jsonValue);
         }
 
-        protected override ContentFieldData ReadValue(JsonReader reader, Type objectType, JsonSerializer serializer)
+        writer.WriteEndObject();
+    }
+
+    protected override ContentFieldData ReadValue(JsonReader reader, Type objectType, JsonSerializer serializer)
+    {
+        var result = new ContentFieldData();
+
+        while (reader.Read())
         {
-            var result = new ContentFieldData();
-
-            while (reader.Read())
+            switch (reader.TokenType)
             {
-                switch (reader.TokenType)
-                {
-                    case JsonToken.PropertyName:
-                        var propertyName = reader.Value!.ToString()!;
+                case JsonToken.PropertyName:
+                    var propertyName = reader.Value!.ToString()!;
 
-                        if (!reader.Read())
-                        {
-                            throw new JsonSerializationException("Unexpected end when reading Object.");
-                        }
+                    if (!reader.Read())
+                    {
+                        throw new JsonSerializationException("Unexpected end when reading Object.");
+                    }
 
-                        var value = serializer.Deserialize<string>(reader)!;
+                    var value = serializer.Deserialize<string>(reader)!;
 
-                        if (propertyName == "iv")
-                        {
-                            propertyName = string.Intern(propertyName);
-                        }
+                    if (propertyName == "iv")
+                    {
+                        propertyName = string.Intern(propertyName);
+                    }
 
-                        result[propertyName] = value;
-                        break;
-                    case JsonToken.EndObject:
-                        return result;
-                }
+                    result[propertyName] = value;
+                    break;
+                case JsonToken.EndObject:
+                    return result;
             }
-
-            throw new JsonSerializationException("Unexpected end when reading Object.");
         }
+
+        throw new JsonSerializationException("Unexpected end when reading Object.");
     }
 }

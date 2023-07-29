@@ -7,11 +7,10 @@
 
 using Microsoft.IO;
 
-namespace Benchmarks.MongoDb.Internal
+namespace Benchmarks.MongoDb.Internal;
+
+public static class DefaultPools
 {
-    public static class DefaultPools
-    {
-        public static readonly RecyclableMemoryStreamManager MemoryStream =
-            new RecyclableMemoryStreamManager();
-    }
+    public static readonly RecyclableMemoryStreamManager MemoryStream =
+        new RecyclableMemoryStreamManager();
 }

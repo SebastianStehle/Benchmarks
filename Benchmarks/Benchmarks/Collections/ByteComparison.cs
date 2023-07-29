@@ -7,40 +7,39 @@
 
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.Collections
+namespace Benchmarks.Collections;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class ByteComparison
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class ByteComparison
+    private readonly byte[] lhs = new byte[500];
+    private readonly byte[] rhs = new byte[500];
+
+    public ByteComparison()
     {
-        private readonly byte[] lhs = new byte[500];
-        private readonly byte[] rhs = new byte[500];
+        var random = new Random();
 
-        public ByteComparison()
+        random.NextBytes(lhs);
+        random.NextBytes(rhs);
+    }
+
+    [Benchmark]
+    public object? SequenceEqual()
+    {
+        return lhs.SequenceEqual(rhs);
+    }
+
+    [Benchmark]
+    public object? FullEqual()
+    {
+        var equalCount = 0;
+
+        for (var i = 0; i < lhs.Length; i++)
         {
-            var random = new Random();
-
-            random.NextBytes(lhs);
-            random.NextBytes(rhs);
+            equalCount += lhs[i] == rhs[i] ? 1 : 0;
         }
 
-        [Benchmark]
-        public object? SequenceEqual()
-        {
-            return lhs.SequenceEqual(rhs);
-        }
-
-        [Benchmark]
-        public object? FullEqual()
-        {
-            var equalCount = 0;
-
-            for (var i = 0; i < lhs.Length; i++)
-            {
-                equalCount += lhs[i] == rhs[i] ? 1 : 0;
-            }
-
-            return equalCount == lhs.Length;
-        }
+        return equalCount == lhs.Length;
     }
 }

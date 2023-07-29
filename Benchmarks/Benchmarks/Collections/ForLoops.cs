@@ -7,48 +7,72 @@
 
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.Collections
+namespace Benchmarks.Collections;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class ForLoops
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class ForLoops
+    private List<int> source;
+    private List<int> result;
+    private IReadOnlyList<int> sourceInterface;
+
+    [IterationSetup]
+    public void Setup()
     {
-        private List<int> source;
-        private List<int> result;
+        source = new List<int>();
 
-        [IterationSetup]
-        public void Setup()
+        for (var i = 0; i < 100; i++)
         {
-            source = new List<int>();
-
-            for (var i = 0; i < 100; i++)
-            {
-                source.Add(i);
-            }
-
-            result = new List<int>(source.Count);
+            source.Add(i);
         }
 
-        [Benchmark]
-        public object? For()
-        {
-            for (var i = 0; i < source.Count; i++)
-            {
-                result.Add(source[i]);
-            }
+        sourceInterface = source;
 
-            return result;
+        result = new List<int>(source.Count);
+    }
+
+    [Benchmark]
+    public object? For()
+    {
+        for (var i = 0; i < source.Count; i++)
+        {
+            result.Add(source[i]);
         }
 
-        [Benchmark]
-        public object? Foreach()
-        {
-            foreach (var item in source)
-            {
-                result.Add(item);
-            }
+        return result;
+    }
 
-            return result;
+    [Benchmark]
+    public object? For_interface()
+    {
+        for (var i = 0; i < sourceInterface.Count; i++)
+        {
+            result.Add(source[i]);
         }
+
+        return result;
+    }
+
+    [Benchmark]
+    public object? Foreach()
+    {
+        foreach (var item in source)
+        {
+            result.Add(item);
+        }
+
+        return result;
+    }
+
+    [Benchmark]
+    public object? Foreach_Interface()
+    {
+        foreach (var item in sourceInterface)
+        {
+            result.Add(item);
+        }
+
+        return result;
     }
 }

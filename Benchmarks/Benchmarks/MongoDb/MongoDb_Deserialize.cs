@@ -14,133 +14,132 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
-namespace Benchmarks.MongoDb
+namespace Benchmarks.MongoDb;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class MongoDb_Deserialize
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class MongoDb_Deserialize
+    private readonly TestObject source = TestObject.CreateWithValues(true);
+    private readonly JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
+    private readonly MemoryStream sourceJson = new MemoryStream();
+    private readonly MemoryStream sourceBson = new MemoryStream();
+    private readonly MemoryStream sourceBsonJsonDocument = new MemoryStream();
+    private readonly MemoryStream sourceBsonJsonBinary = new MemoryStream();
+    private readonly MemoryStream sourceBsonJsonString = new MemoryStream();
+
+    private class WrapperPlain
     {
-        private readonly TestObject source = TestObject.CreateWithValues(true);
-        private readonly JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
-        private readonly MemoryStream sourceJson = new MemoryStream();
-        private readonly MemoryStream sourceBson = new MemoryStream();
-        private readonly MemoryStream sourceBsonJsonDocument = new MemoryStream();
-        private readonly MemoryStream sourceBsonJsonBinary = new MemoryStream();
-        private readonly MemoryStream sourceBsonJsonString = new MemoryStream();
+        public TestObject Source { get; set; }
+    }
 
-        private class WrapperPlain
+    private class WrapperJsonDocument
+    {
+        [BsonJson]
+        [BsonRepresentation(BsonType.Document)]
+        public TestObject Source { get; set; }
+    }
+
+    private class WrapperJsonBinary
+    {
+        [BsonJson]
+        [BsonRepresentation(BsonType.Binary)]
+        public TestObject Source { get; set; }
+    }
+
+    private class WrapperJsonString
+    {
+        [BsonJson]
+        [BsonRepresentation(BsonType.String)]
+        public TestObject Source { get; set; }
+    }
+
+    static MongoDb_Deserialize()
+    {
+        BsonJsonConvention.Register();
+    }
+
+    public MongoDb_Deserialize()
+    {
+        System.Text.Json.JsonSerializer.Serialize(sourceJson, source);
+
+        using (var writer = new BsonBinaryWriter(sourceBson))
         {
-            public TestObject Source { get; set; }
+            BsonSerializer.Serialize(writer, typeof(WrapperPlain), new WrapperPlain { Source = source });
         }
 
-        private class WrapperJsonDocument
+        using (var writer = new BsonBinaryWriter(sourceBsonJsonDocument))
         {
-            [BsonJson]
-            [BsonRepresentation(BsonType.Document)]
-            public TestObject Source { get; set; }
+            BsonSerializer.Serialize(writer, typeof(WrapperJsonDocument), new WrapperJsonDocument { Source = source });
         }
 
-        private class WrapperJsonBinary
+        using (var writer = new BsonBinaryWriter(sourceBsonJsonBinary))
         {
-            [BsonJson]
-            [BsonRepresentation(BsonType.Binary)]
-            public TestObject Source { get; set; }
+            BsonSerializer.Serialize(writer, typeof(WrapperJsonBinary), new WrapperJsonBinary { Source = source });
         }
 
-        private class WrapperJsonString
+        using (var writer = new BsonBinaryWriter(sourceBsonJsonString))
         {
-            [BsonJson]
-            [BsonRepresentation(BsonType.String)]
-            public TestObject Source { get; set; }
+            BsonSerializer.Serialize(writer, typeof(WrapperJsonString), new WrapperJsonString { Source = source });
         }
+    }
 
-        static MongoDb_Deserialize()
-        {
-            BsonJsonConvention.Register();
-        }
+    [Benchmark]
+    public object? Json_Newtonsoft()
+    {
+        sourceJson.Position = 0;
 
-        public MongoDb_Deserialize()
-        {
-            System.Text.Json.JsonSerializer.Serialize(sourceJson, source);
+        using var readerText = new StreamReader(sourceJson, leaveOpen: true);
+        using var readerJson = new JsonTextReader(readerText);
 
-            using (var writer = new BsonBinaryWriter(sourceBson))
-            {
-                BsonSerializer.Serialize(writer, typeof(WrapperPlain), new WrapperPlain { Source = source });
-            }
+        return jsonSerializer.Deserialize<TestObject>(readerJson);
+    }
 
-            using (var writer = new BsonBinaryWriter(sourceBsonJsonDocument))
-            {
-                BsonSerializer.Serialize(writer, typeof(WrapperJsonDocument), new WrapperJsonDocument { Source = source });
-            }
+    [Benchmark]
+    public object? Json_System()
+    {
+        sourceJson.Position = 0;
 
-            using (var writer = new BsonBinaryWriter(sourceBsonJsonBinary))
-            {
-                BsonSerializer.Serialize(writer, typeof(WrapperJsonBinary), new WrapperJsonBinary { Source = source });
-            }
+        return System.Text.Json.JsonSerializer.Deserialize<TestObject>(sourceJson);
+    }
 
-            using (var writer = new BsonBinaryWriter(sourceBsonJsonString))
-            {
-                BsonSerializer.Serialize(writer, typeof(WrapperJsonString), new WrapperJsonString { Source = source });
-            }
-        }
+    [Benchmark]
+    public object? Bson()
+    {
+        sourceBson.Position = 0;
 
-        [Benchmark]
-        public object? Json_Newtonsoft()
-        {
-            sourceJson.Position = 0;
+        using var reader = new BsonBinaryReader(sourceBson);
 
-            using var readerText = new StreamReader(sourceJson, leaveOpen: true);
-            using var readerJson = new JsonTextReader(readerText);
+        return BsonSerializer.Deserialize<WrapperPlain>(reader);
+    }
 
-            return jsonSerializer.Deserialize<TestObject>(readerJson);
-        }
+    [Benchmark]
+    public object? Bson_over_JsonDocument()
+    {
+        sourceBsonJsonDocument.Position = 0;
 
-        [Benchmark]
-        public object? Json_System()
-        {
-            sourceJson.Position = 0;
+        using var reader = new BsonBinaryReader(sourceBsonJsonDocument);
 
-            return System.Text.Json.JsonSerializer.Deserialize<TestObject>(sourceJson);
-        }
+        return BsonSerializer.Deserialize<WrapperJsonDocument>(reader);
+    }
 
-        [Benchmark]
-        public object? Bson()
-        {
-            sourceBson.Position = 0;
+    [Benchmark]
+    public object? Bson_over_JsonBinary()
+    {
+        sourceBsonJsonBinary.Position = 0;
 
-            using var reader = new BsonBinaryReader(sourceBson);
+        using var reader = new BsonBinaryReader(sourceBsonJsonBinary);
 
-            return BsonSerializer.Deserialize<WrapperPlain>(reader);
-        }
+        return BsonSerializer.Deserialize<WrapperJsonBinary>(reader);
+    }
 
-        [Benchmark]
-        public object? Bson_over_JsonDocument()
-        {
-            sourceBsonJsonDocument.Position = 0;
+    [Benchmark]
+    public object? Bson_over_JsonString()
+    {
+        sourceBsonJsonString.Position = 0;
 
-            using var reader = new BsonBinaryReader(sourceBsonJsonDocument);
+        using var reader = new BsonBinaryReader(sourceBsonJsonString);
 
-            return BsonSerializer.Deserialize<WrapperJsonDocument>(reader);
-        }
-
-        [Benchmark]
-        public object? Bson_over_JsonBinary()
-        {
-            sourceBsonJsonBinary.Position = 0;
-
-            using var reader = new BsonBinaryReader(sourceBsonJsonBinary);
-
-            return BsonSerializer.Deserialize<WrapperJsonBinary>(reader);
-        }
-
-        [Benchmark]
-        public object? Bson_over_JsonString()
-        {
-            sourceBsonJsonString.Position = 0;
-
-            using var reader = new BsonBinaryReader(sourceBsonJsonString);
-
-            return BsonSerializer.Deserialize<WrapperJsonString>(reader);
-        }
+        return BsonSerializer.Deserialize<WrapperJsonString>(reader);
     }
 }

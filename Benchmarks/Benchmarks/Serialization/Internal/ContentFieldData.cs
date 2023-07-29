@@ -5,17 +5,16 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-namespace Benchmarks.Serialization.Internal
-{
-    public class ContentFieldData : Dictionary<string, string>
-    {
-        public ContentFieldData()
-        {
-        }
+namespace Benchmarks.Serialization.Internal;
 
-        public ContentFieldData(int capacity)
-            : base(capacity)
-        {
-        }
+public class ContentFieldData : Dictionary<string, string>
+{
+    public ContentFieldData()
+    {
+    }
+
+    public ContentFieldData(int capacity)
+        : base(capacity)
+    {
     }
 }

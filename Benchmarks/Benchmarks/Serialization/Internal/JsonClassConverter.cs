@@ -7,38 +7,37 @@
 
 using Newtonsoft.Json;
 
-namespace Benchmarks.Serialization.Internal
+namespace Benchmarks.Serialization.Internal;
+
+public abstract class JsonClassConverter<T> : JsonConverter where T : class
 {
-    public abstract class JsonClassConverter<T> : JsonConverter where T : class
+    public sealed override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        public sealed override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        if (reader.TokenType == JsonToken.Null)
         {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-
-            return ReadValue(reader, objectType, serializer);
+            return null;
         }
 
-        protected abstract T? ReadValue(JsonReader reader, Type objectType, JsonSerializer serializer);
+        return ReadValue(reader, objectType, serializer);
+    }
 
-        public sealed override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    protected abstract T? ReadValue(JsonReader reader, Type objectType, JsonSerializer serializer);
+
+    public sealed override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        if (value == null)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-                return;
-            }
-
-            WriteValue(writer, (T)value, serializer);
+            writer.WriteNull();
+            return;
         }
 
-        protected abstract void WriteValue(JsonWriter writer, T value, JsonSerializer serializer);
+        WriteValue(writer, (T)value, serializer);
+    }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(T);
-        }
+    protected abstract void WriteValue(JsonWriter writer, T value, JsonSerializer serializer);
+
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(T);
     }
 }

@@ -8,54 +8,53 @@
 using System.Text;
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.Strings
+namespace Benchmarks.Strings;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class StringBuilderAppend
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class StringBuilderAppend
+    private const string Test = "Hello World";
+    private static readonly ReadOnlyMemory<char> TestMemory = Test.AsMemory();
+
+    [Benchmark]
+    public object? Append_String()
     {
-        private const string Test = "Hello World";
-        private static readonly ReadOnlyMemory<char> TestMemory = Test.AsMemory();
+        var sb = new StringBuilder();
 
-        [Benchmark]
-        public object? Append_String()
+        for (int i = 0; i < 10000; i++)
         {
-            var sb = new StringBuilder();
-
-            for (int i = 0; i < 10000; i++)
-            {
-                sb.Append(Test);
-            }
-
-            return sb.ToString();
+            sb.Append(Test);
         }
 
-        [Benchmark]
-        public object? Append_Memory()
+        return sb.ToString();
+    }
+
+    [Benchmark]
+    public object? Append_Memory()
+    {
+        var sb = new StringBuilder();
+
+        for (int i = 0; i < 10000; i++)
         {
-            var sb = new StringBuilder();
-
-            for (int i = 0; i < 10000; i++)
-            {
-                sb.Append(TestMemory);
-            }
-
-            return sb.ToString();
+            sb.Append(TestMemory);
         }
 
-        [Benchmark]
-        public object? Append_Span()
+        return sb.ToString();
+    }
+
+    [Benchmark]
+    public object? Append_Span()
+    {
+        var span = Test.AsSpan();
+
+        var sb = new StringBuilder();
+
+        for (int i = 0; i < 10000; i++)
         {
-            var span = Test.AsSpan();
-
-            var sb = new StringBuilder();
-
-            for (int i = 0; i < 10000; i++)
-            {
-                sb.Append(span);
-            }
-
-            return sb.ToString();
+            sb.Append(span);
         }
+
+        return sb.ToString();
     }
 }

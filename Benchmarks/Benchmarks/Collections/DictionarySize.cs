@@ -8,93 +8,92 @@
 using BenchmarkDotNet.Attributes;
 using Benchmarks.Collections.Internal;
 
-namespace Benchmarks.Collections
+namespace Benchmarks.Collections;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class DictionarySize
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class DictionarySize
+    private List<string> values;
+
+    [Params(5, 10, 20, 100)]
+    public int N { get; set; }
+
+    [IterationSetup]
+    public void Setup()
     {
-        private List<string> values;
+        values = new List<string>(N);
 
-        [Params(5, 10, 20, 100)]
-        public int N { get; set; }
+        var random = new Random();
 
-        [IterationSetup]
-        public void Setup()
+        for (var i = 0; i < N; i++)
         {
-            values = new List<string>(N);
+            values.Add($"{random.Next(1000)}");
+        }
+    }
 
-            var random = new Random();
+    [Benchmark]
+    public object? Dictionary()
+    {
+        var result = new Dictionary<string, string>();
 
-            for (var i = 0; i < N; i++)
-            {
-                values.Add($"{random.Next(1000)}");
-            }
+        foreach (var value in values)
+        {
+            result[value] = value;
         }
 
-        [Benchmark]
-        public object? Dictionary()
+        return result;
+    }
+
+    [Benchmark]
+    public object? DictionaryPreSize()
+    {
+        var result = new Dictionary<string, string>(N);
+
+        foreach (var value in values)
         {
-            var result = new Dictionary<string, string>();
-
-            foreach (var value in values)
-            {
-                result[value] = value;
-            }
-
-            return result;
+            result[value] = value;
         }
 
-        [Benchmark]
-        public object? DictionaryPreSize()
+        return result;
+    }
+
+    [Benchmark]
+    public object? List()
+    {
+        var result = new List<KeyValuePair<string, string>>();
+
+        foreach (var value in values)
         {
-            var result = new Dictionary<string, string>(N);
-
-            foreach (var value in values)
-            {
-                result[value] = value;
-            }
-
-            return result;
+            result.Add(new KeyValuePair<string, string>(value, value));
         }
 
-        [Benchmark]
-        public object? List()
+        return result;
+    }
+
+    [Benchmark]
+    public object? PreSize()
+    {
+        var result = new List<KeyValuePair<string, string>>(N);
+
+        foreach (var value in values)
         {
-            var result = new List<KeyValuePair<string, string>>();
-
-            foreach (var value in values)
-            {
-                result.Add(new KeyValuePair<string, string>(value, value));
-            }
-
-            return result;
+            result.Add(new KeyValuePair<string, string>(value, value));
         }
 
-        [Benchmark]
-        public object? PreSize()
+        return result;
+    }
+
+    [Benchmark]
+    public object? ListDictionary()
+    {
+        var result = new ListDictionary<string, string>();
+
+        foreach (var value in values)
         {
-            var result = new List<KeyValuePair<string, string>>(N);
-
-            foreach (var value in values)
-            {
-                result.Add(new KeyValuePair<string, string>(value, value));
-            }
-
-            return result;
+            result[value] = value;
         }
 
-        [Benchmark]
-        public object? ListDictionary()
-        {
-            var result = new ListDictionary<string, string>();
-
-            foreach (var value in values)
-            {
-                result[value] = value;
-            }
-
-            return result;
-        }
+        return result;
     }
 }

@@ -7,200 +7,199 @@
 
 using Newtonsoft.Json;
 
-namespace Benchmarks.Serialization.Internal
+namespace Benchmarks.Serialization.Internal;
+
+public class JsonValueConverter : JsonConverter
 {
-    public class JsonValueConverter : JsonConverter
+    private readonly HashSet<Type> supportedTypes = new HashSet<Type>
     {
-        private readonly HashSet<Type> supportedTypes = new HashSet<Type>
-        {
-            typeof(JsonValue)
-        };
+        typeof(JsonValue)
+    };
 
-        public virtual IEnumerable<Type> SupportedTypes
+    public virtual IEnumerable<Type> SupportedTypes
+    {
+        get => supportedTypes;
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var previousDateParseHandling = reader.DateParseHandling;
+
+        reader.DateParseHandling = DateParseHandling.None;
+        try
         {
-            get => supportedTypes;
+            return ReadJsonCore(reader);
         }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        finally
         {
-            var previousDateParseHandling = reader.DateParseHandling;
-
-            reader.DateParseHandling = DateParseHandling.None;
-            try
-            {
-                return ReadJsonCore(reader);
-            }
-            finally
-            {
-                reader.DateParseHandling = previousDateParseHandling;
-            }
+            reader.DateParseHandling = previousDateParseHandling;
         }
+    }
 
-        private static JsonValue ReadJsonCore(JsonReader reader)
+    private static JsonValue ReadJsonCore(JsonReader reader)
+    {
+        switch (reader.TokenType)
         {
-            switch (reader.TokenType)
-            {
-                case JsonToken.Null:
-                    return default;
-                case JsonToken.Undefined:
-                    return default;
-                case JsonToken.String:
-                    return new JsonValue((string)reader.Value!);
-                case JsonToken.Integer:
-                    return new JsonValue((long)reader.Value!);
-                case JsonToken.Float:
-                    return new JsonValue((double)reader.Value!);
-                case JsonToken.Boolean:
-                    return (bool)reader.Value! ? JsonValue.True : JsonValue.False;
-                case JsonToken.StartObject:
+            case JsonToken.Null:
+                return default;
+            case JsonToken.Undefined:
+                return default;
+            case JsonToken.String:
+                return new JsonValue((string)reader.Value!);
+            case JsonToken.Integer:
+                return new JsonValue((long)reader.Value!);
+            case JsonToken.Float:
+                return new JsonValue((double)reader.Value!);
+            case JsonToken.Boolean:
+                return (bool)reader.Value! ? JsonValue.True : JsonValue.False;
+            case JsonToken.StartObject:
+                {
+                    var result = new JsonObject(4);
+
+                    Dictionary<string, JsonValue> dictionary = result;
+
+                    while (reader.Read())
                     {
-                        var result = new JsonObject(4);
-
-                        Dictionary<string, JsonValue> dictionary = result;
-
-                        while (reader.Read())
+                        switch (reader.TokenType)
                         {
-                            switch (reader.TokenType)
-                            {
-                                case JsonToken.PropertyName:
-                                    var propertyName = reader.Value!.ToString()!;
+                            case JsonToken.PropertyName:
+                                var propertyName = reader.Value!.ToString()!;
 
-                                    if (!reader.Read())
-                                    {
-                                        ThrowInvalidObjectException();
-                                    }
+                                if (!reader.Read())
+                                {
+                                    ThrowInvalidObjectException();
+                                }
 
-                                    var value = ReadJsonCore(reader);
+                                var value = ReadJsonCore(reader);
 
-                                    dictionary.Add(propertyName, value);
-                                    break;
-                                case JsonToken.EndObject:
-                                    result.TrimExcess();
+                                dictionary.Add(propertyName, value);
+                                break;
+                            case JsonToken.EndObject:
+                                result.TrimExcess();
 
-                                    return new JsonValue(result);
-                            }
+                                return new JsonValue(result);
                         }
-
-                        ThrowInvalidObjectException();
-                        return default!;
                     }
 
-                case JsonToken.StartArray:
+                    ThrowInvalidObjectException();
+                    return default!;
+                }
+
+            case JsonToken.StartArray:
+                {
+                    var result = new JsonArray(4);
+
+                    while (reader.Read())
                     {
-                        var result = new JsonArray(4);
-
-                        while (reader.Read())
+                        switch (reader.TokenType)
                         {
-                            switch (reader.TokenType)
-                            {
-                                case JsonToken.Comment:
-                                    continue;
-                                case JsonToken.EndArray:
-                                    result.TrimExcess();
+                            case JsonToken.Comment:
+                                continue;
+                            case JsonToken.EndArray:
+                                result.TrimExcess();
 
-                                    return new JsonValue(result);
-                                default:
-                                    var value = ReadJsonCore(reader);
+                                return new JsonValue(result);
+                            default:
+                                var value = ReadJsonCore(reader);
 
-                                    result.Add(value);
-                                    break;
-                            }
+                                result.Add(value);
+                                break;
                         }
-
-                        ThrowInvalidArrayException();
-                        return default!;
                     }
 
-                case JsonToken.Comment:
-                    reader.Read();
-                    break;
-            }
+                    ThrowInvalidArrayException();
+                    return default!;
+                }
 
-            ThrowUnsupportedTypeException();
-            return default;
+            case JsonToken.Comment:
+                reader.Read();
+                break;
         }
 
-        private static void ThrowUnsupportedTypeException()
+        ThrowUnsupportedTypeException();
+        return default;
+    }
+
+    private static void ThrowUnsupportedTypeException()
+    {
+        throw new JsonSerializationException("Unsupported type.");
+    }
+
+    private static void ThrowInvalidArrayException()
+    {
+        throw new JsonSerializationException("Unexpected end when reading Array.");
+    }
+
+    private static void ThrowInvalidObjectException()
+    {
+        throw new JsonSerializationException("Unexpected end when reading Object.");
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        if (value == null)
         {
-            throw new JsonSerializationException("Unsupported type.");
+            writer.WriteNull();
+            return;
         }
 
-        private static void ThrowInvalidArrayException()
-        {
-            throw new JsonSerializationException("Unexpected end when reading Array.");
-        }
+        WriteJson(writer, (JsonValue)value);
+    }
 
-        private static void ThrowInvalidObjectException()
+    private static void WriteJson(JsonWriter writer, JsonValue value)
+    {
+        switch (value.Type)
         {
-            throw new JsonSerializationException("Unexpected end when reading Object.");
-        }
-
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
+            case JsonValueType.Null:
                 writer.WriteNull();
-                return;
-            }
+                break;
+            case JsonValueType.Boolean:
+                writer.WriteValue(value.AsBoolean);
+                break;
+            case JsonValueType.String:
+                writer.WriteValue(value.AsString);
+                break;
+            case JsonValueType.Number:
+                var number = value.AsNumber;
 
-            WriteJson(writer, (JsonValue)value);
+                if (number % 1 == 0)
+                {
+                    writer.WriteValue((long)number);
+                }
+                else
+                {
+                    writer.WriteValue(number);
+                }
+
+                break;
+            case JsonValueType.Array:
+                writer.WriteStartArray();
+
+                foreach (var item in value.AsArray)
+                {
+                    WriteJson(writer, item);
+                }
+
+                writer.WriteEndArray();
+                break;
+
+            case JsonValueType.Object:
+                writer.WriteStartObject();
+
+                foreach (var (key, jsonValue) in value.AsObject)
+                {
+                    writer.WritePropertyName(key);
+
+                    WriteJson(writer, jsonValue);
+                }
+
+                writer.WriteEndObject();
+                break;
         }
+    }
 
-        private static void WriteJson(JsonWriter writer, JsonValue value)
-        {
-            switch (value.Type)
-            {
-                case JsonValueType.Null:
-                    writer.WriteNull();
-                    break;
-                case JsonValueType.Boolean:
-                    writer.WriteValue(value.AsBoolean);
-                    break;
-                case JsonValueType.String:
-                    writer.WriteValue(value.AsString);
-                    break;
-                case JsonValueType.Number:
-                    var number = value.AsNumber;
-
-                    if (number % 1 == 0)
-                    {
-                        writer.WriteValue((long)number);
-                    }
-                    else
-                    {
-                        writer.WriteValue(number);
-                    }
-
-                    break;
-                case JsonValueType.Array:
-                    writer.WriteStartArray();
-
-                    foreach (var item in value.AsArray)
-                    {
-                        WriteJson(writer, item);
-                    }
-
-                    writer.WriteEndArray();
-                    break;
-
-                case JsonValueType.Object:
-                    writer.WriteStartObject();
-
-                    foreach (var (key, jsonValue) in value.AsObject)
-                    {
-                        writer.WritePropertyName(key);
-
-                        WriteJson(writer, jsonValue);
-                    }
-
-                    writer.WriteEndObject();
-                    break;
-            }
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return supportedTypes.Contains(objectType);
-        }
+    public override bool CanConvert(Type objectType)
+    {
+        return supportedTypes.Contains(objectType);
     }
 }

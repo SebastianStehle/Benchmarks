@@ -5,37 +5,36 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-namespace Benchmarks.Serialization.Internal
+namespace Benchmarks.Serialization.Internal;
+
+public sealed class ContentFieldDataSurrogate : Dictionary<string, string>, ISurrogate<ContentFieldData>
 {
-    public sealed class ContentFieldDataSurrogate : Dictionary<string, string>, ISurrogate<ContentFieldData>
+    public void FromSource(ContentFieldData source)
     {
-        public void FromSource(ContentFieldData source)
-        {
-            EnsureCapacity(source.Count);
+        EnsureCapacity(source.Count);
 
-            foreach (var (key, value) in source)
-            {
-                this[key] = value;
-            }
+        foreach (var (key, value) in source)
+        {
+            this[key] = value;
         }
+    }
 
-        public ContentFieldData ToSource()
+    public ContentFieldData ToSource()
+    {
+        var result = new ContentFieldData(Count);
+
+        foreach (var (key, value) in this)
         {
-            var result = new ContentFieldData(Count);
+            var actualKey = key;
 
-            foreach (var (key, value) in this)
+            if (actualKey == "iv")
             {
-                var actualKey = key;
-
-                if (actualKey == "iv")
-                {
-                    actualKey = string.Intern(key);
-                }
-
-                result.Add(actualKey, value);
+                actualKey = string.Intern(key);
             }
 
-            return result;
+            result.Add(actualKey, value);
         }
+
+        return result;
     }
 }

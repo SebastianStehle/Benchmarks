@@ -9,36 +9,35 @@ using BenchmarkDotNet.Attributes;
 
 #pragma warning disable CA1822 // Mark members as static
 
-namespace Benchmarks.Collections
+namespace Benchmarks.Collections;
+
+[SimpleJob]
+[MemoryDiagnoser]
+public class DictionariesAdd
 {
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class DictionariesAdd
+    [Benchmark]
+    public object? Add()
     {
-        [Benchmark]
-        public object? Add()
+        var result = new Dictionary<int, int>();
+
+        for (var i = 0; i < 1000; i++)
         {
-            var result = new Dictionary<int, int>();
-
-            for (var i = 0; i < 1000; i++)
-            {
-                result.Add(i, i);
-            }
-
-            return result;
+            result.Add(i, i);
         }
 
-        [Benchmark]
-        public object? Set()
+        return result;
+    }
+
+    [Benchmark]
+    public object? Set()
+    {
+        var result = new Dictionary<int, int>();
+
+        for (var i = 0; i < 1000; i++)
         {
-            var result = new Dictionary<int, int>();
-
-            for (var i = 0; i < 1000; i++)
-            {
-                result[i] = i;
-            }
-
-            return result;
+            result[i] = i;
         }
+
+        return result;
     }
 }

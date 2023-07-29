@@ -5,15 +5,14 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-namespace Benchmarks.Serialization.Internal
+namespace Benchmarks.Serialization.Internal;
+
+public enum JsonValueType
 {
-    public enum JsonValueType
-    {
-        Array,
-        Boolean,
-        Null,
-        Number,
-        Object,
-        String
-    }
+    Array,
+    Boolean,
+    Null,
+    Number,
+    Object,
+    String
 }
