@@ -43,9 +43,11 @@ public class Mapper
 
     public class TestObject
     {
-        public bool Bool { get; set; }
+        private byte @byte;
 
-        public byte Byte { get; set; }
+        public virtual bool Bool { get; set; }
+
+        public byte Byte { get => @byte; set => @byte = value; }
 
         public byte[] Bytes { get; set; }
 

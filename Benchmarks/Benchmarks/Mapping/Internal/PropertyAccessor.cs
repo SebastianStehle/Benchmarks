@@ -23,12 +23,35 @@ internal static class PropertyAccessor
             return x => throw new NotSupportedException();
         }
 
+        var bakingField =
+            propertyInfo.DeclaringType!.GetField($"<{propertyInfo.Name}>k__BackingField",
+                BindingFlags.NonPublic |
+                BindingFlags.Instance);
+
         var propertyGetMethod = propertyInfo.GetGetMethod()!;
 
-        var getMethod = new DynamicMethod(propertyGetMethod.Name, typeof(TValue), new[] { typeof(TSource) }, false);
+        var getMethod = new DynamicMethod(propertyGetMethod.Name, typeof(TValue), new[] { typeof(TSource) }, true);
         var getGenerator = getMethod.GetILGenerator();
+
+        // Load this to stack.
         getGenerator.Emit(OpCodes.Ldarg_0);
-        getGenerator.Emit(OpCodes.Call, propertyGetMethod);
+
+        if (bakingField != null && !propertyGetMethod.IsVirtual)
+        {
+            // Get field directly.
+            getGenerator.Emit(OpCodes.Ldfld, bakingField);
+        }
+        else if (propertyGetMethod.IsVirtual)
+        {
+            // Call the virtual property.
+            getGenerator.Emit(OpCodes.Callvirt, propertyGetMethod);
+        }
+        else
+        {
+            // Call the non virtual property.
+            getGenerator.Emit(OpCodes.Call, propertyGetMethod);
+        }
+
         getGenerator.Emit(OpCodes.Ret);
 
         return getMethod.CreateDelegate<Getter<TSource, TValue>>();
@@ -41,13 +64,38 @@ internal static class PropertyAccessor
             return (x, y) => throw new NotSupportedException();
         }
 
+        var bakingField =
+            propertyInfo.DeclaringType!.GetField($"<{propertyInfo.Name}>k__BackingField",
+                BindingFlags.NonPublic |
+                BindingFlags.Instance);
+
         var propertySetMethod = propertyInfo.GetSetMethod()!;
 
-        var setMethod = new DynamicMethod(propertySetMethod.Name, null, new[] { typeof(TSource), typeof(TValue) }, false);
+        var setMethod = new DynamicMethod(propertySetMethod.Name, null, new[] { typeof(TSource), typeof(TValue) }, true);
         var setGenerator = setMethod.GetILGenerator();
+
+        // Load this to stack.
         setGenerator.Emit(OpCodes.Ldarg_0);
+
+        // Load argument to stack.
         setGenerator.Emit(OpCodes.Ldarg_1);
-        setGenerator.Emit(OpCodes.Call, propertyInfo.GetSetMethod()!);
+
+        if (bakingField != null && !propertySetMethod.IsVirtual)
+        {
+            // Set the baking field directly.
+            setGenerator.Emit(OpCodes.Stfld, bakingField);
+        }
+        else if (propertySetMethod.IsVirtual)
+        {
+            // Call the virtual property.
+            setGenerator.Emit(OpCodes.Callvirt, propertySetMethod);
+        }
+        else
+        {
+            // Call the non virtual property.
+            setGenerator.Emit(OpCodes.Call, propertySetMethod);
+        }
+
         setGenerator.Emit(OpCodes.Ret);
 
         return setMethod.CreateDelegate<Setter<TSource, TValue>>();

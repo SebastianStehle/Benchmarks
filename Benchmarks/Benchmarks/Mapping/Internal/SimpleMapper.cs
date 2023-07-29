@@ -351,9 +351,11 @@ public static partial class SimpleMapper
 
         public static TTarget MapClass(TSource source, TTarget destination, ref MappingContext context)
         {
-            foreach (var mapper in Mappers)
+            var count = Mappers.Count;
+
+            for (var i = 0; i < count; i++)
             {
-                mapper.MapProperty(source, destination, ref context);
+                Mappers[i].MapProperty(source, destination, ref context);
             }
 
             return destination;
