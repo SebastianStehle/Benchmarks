@@ -19,6 +19,9 @@ public static class Program
     {
         var x = new Mapper();
 
+        x.Map_Manually();
+        x.Map_SimpleMapper();
+
         Console.WriteLine("Mapping");
 
         for (var i = 0; i < 5; i++)
