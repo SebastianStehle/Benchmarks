@@ -18,10 +18,19 @@ public static class Program
     public static void Main(string[] args)
     {
         var x = new Mapper();
-        x.Map_Manually();
-        x.Map_SimpleMapper();
-        MapManually(x);
-        MapSimpleMapper(x);
+
+        Console.WriteLine("Mapping");
+
+        for (var i = 0; i < 5; i++)
+        {
+            MapManually(x);
+        }
+
+        for (var i = 0; i < 5; i++)
+        {
+            MapSimpleMapper(x);
+        }
+
         BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 
@@ -38,7 +47,7 @@ public static class Program
 
         watch.Stop();
 
-        Console.WriteLine("Test 2 {0}", watch.Elapsed);
+        Console.WriteLine("Test Manually {0}", watch.Elapsed);
     }
 
     private static void MapSimpleMapper(Mapper x)
@@ -54,6 +63,6 @@ public static class Program
 
         watch.Stop();
 
-        Console.WriteLine("Test 2 {0}", watch.Elapsed);
+        Console.WriteLine("Test Mapper {0}", watch.Elapsed);
     }
 }
