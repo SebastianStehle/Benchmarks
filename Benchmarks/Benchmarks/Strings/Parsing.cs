@@ -32,7 +32,7 @@ public class Parsing
     [Benchmark]
     public object Read_XmlReader()
     {
-        var result = new List<object>();
+        var tokens = new List<object>();
 
         var reader = XmlReader.Create(new StringReader(Input));
 
@@ -43,13 +43,17 @@ public class Parsing
                 for (var i = 0; i < reader.AttributeCount; i++)
                 {
                     reader.MoveToAttribute(i);
+
+                    tokens.Add(reader.Name);
+                    tokens.Add(reader.GetAttribute(i));
                 }
             }
 
-            result.Add(reader.NodeType);
+            tokens.Add(reader.Name);
+            tokens.Add(reader.NodeType);
         }
 
-        return result;
+        return tokens;
     }
 
     [Benchmark]
@@ -91,17 +95,17 @@ public class Parsing
     [Benchmark]
     public object? Read_AngleSharpTokenizer()
     {
-        object? latest = null;
+        var tokens = new List<object>(1000);
 
         var reader = new HtmlTokenizer(Input);
 
         AngleSharp.Html.Parser.Tokens.HtmlToken token;
         while ((token = reader.Read()) != null && token.Type != HtmlTokenType.EndOfFile)
         {
-            latest = token;
+            tokens.Add(token);
         }
 
-        return latest;
+        return tokens;
     }
 
     [Benchmark]
@@ -115,7 +119,7 @@ public class Parsing
     [Benchmark]
     public object? Read_HtmlPerformanceKit()
     {
-        object? latest = null;
+        var tokens = new List<object>(1000);
 
         var reader = new HtmlPerfKitReader(Buffer);
 
@@ -125,19 +129,21 @@ public class Parsing
             {
                 for (var i = 0; i < reader.AttributeCount; i++)
                 {
-                    latest = reader.GetAttribute(i);
+                    tokens.Add(reader.GetAttributeName(i));
+                    tokens.Add(reader.GetAttribute(i));
                 }
             }
 
-            latest = reader.TokenKind;
+            tokens.Add(reader.Name);
+            tokens.Add(reader.TokenKind);
         }
 
-        return latest;
+        return tokens;
     }
 }
 
 #pragma warning disable MA0048 // File name must match type name
-class HtmlTokenizer
+internal sealed class HtmlTokenizer
 #pragma warning restore MA0048 // File name must match type name
 {
     private static readonly Func<TextSource, IEntityProvider, IDisposable> HtmlTokenizerFactory;
